@@ -1,24 +1,29 @@
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { ExternalLinkIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
+  Box,
+  Button,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
   DrawerOverlay,
   Flex,
+  Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import React, { ReactElement } from "react";
 import { DarkModeSwitchIcon } from "../Chakra/DarkModeSwitchIcon";
 import StyledLink from "./Link";
 import { LinkConstants } from "./LinkConstants";
+import UserMenu from "./UserMenu";
 interface Props {}
 
 export default function MobileDrawer({}: Props): ReactElement {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = React.useRef();
-
+  const { data: session } = useSession();
   return (
     <>
       <HamburgerIcon
@@ -39,8 +44,21 @@ export default function MobileDrawer({}: Props): ReactElement {
           <DrawerCloseButton />
 
           <DrawerBody>
-            <Flex justify="center" align="center" flexDir="column" h="100%">
-              <VStack spacing={4} as="ul">
+            <Flex
+              justify="flex-start"
+              align="center"
+              flexDir="column"
+              h="100%"
+              py={16}
+            >
+              <VStack spacing={6} as="ul">
+                {session && (
+                  <Box py={2}>
+                    <UserMenu mobile={true} />
+                    <Text>{session.user.username}</Text>
+                  </Box>
+                )}
+
                 <DarkModeSwitchIcon />
                 {LinkConstants.map((link) => (
                   <StyledLink
@@ -49,6 +67,21 @@ export default function MobileDrawer({}: Props): ReactElement {
                     key={link.href}
                   />
                 ))}
+                {!session && (
+                  <Button onClick={() => signIn()} colorScheme="teal" w="full">
+                    Sign In
+                  </Button>
+                )}
+                {session && (
+                  <Button
+                    onClick={() => signOut()}
+                    colorScheme="teal"
+                    w="full"
+                    rightIcon={<ExternalLinkIcon />}
+                  >
+                    Sign Out
+                  </Button>
+                )}
               </VStack>
             </Flex>
           </DrawerBody>

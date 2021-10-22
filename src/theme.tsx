@@ -24,6 +24,7 @@ const theme = extendTheme({
       },
       body: {
         h: "100%",
+        minHeight: "100vh",
         m: "0",
         fontFamily: "body",
         color: mode("black", "white")(props),

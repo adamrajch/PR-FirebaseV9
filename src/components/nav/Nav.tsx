@@ -1,10 +1,18 @@
 import { useColorModeValue } from "@chakra-ui/color-mode";
-import { HStack, Spacer, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Spacer, Text } from "@chakra-ui/react";
+import { signIn, useSession } from "next-auth/react";
 import React, { ReactElement, useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
+import { modalState } from "../../../atoms/modalAtom";
 import StyledLink from "./Link";
 import { LinkConstants } from "./LinkConstants";
 import MobileDrawer from "./MobileDrawer";
+import UserMenu from "./UserMenu";
+
 export default function StickyNav(): ReactElement {
+  const { data: session } = useSession();
+  const [open, setOpen] = useRecoilState(modalState);
+  console.log(session);
   const [visible, setVisible] = useState(true);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [isTop, setIsTop] = useState(true);
@@ -53,7 +61,7 @@ export default function StickyNav(): ReactElement {
         ml="1rem"
         cursor="pointer"
       >
-        Site Name
+        PERIODIZE
       </Text>
 
       <Spacer />
@@ -65,9 +73,22 @@ export default function StickyNav(): ReactElement {
         pr="2rem"
       >
         {LinkConstants.map((link) => (
-          <StyledLink href={link.href} title={link.title} />
+          <StyledLink href={link.href} title={link.title} key={link.href} />
         ))}
       </HStack>
+      <Box display={{ base: "none", xl: "block" }}>
+        {session && <UserMenu mobile={false} />}
+      </Box>
+
+      {!session && (
+        <Button
+          onClick={() => signIn()}
+          colorScheme="teal"
+          display={{ base: "none", xl: "inline-block" }}
+        >
+          Sign In
+        </Button>
+      )}
       <MobileDrawer />
     </HStack>
   );
